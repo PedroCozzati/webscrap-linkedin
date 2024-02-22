@@ -1,0 +1,8 @@
+.venv/
+nodrop/__pycache__/
+venv
+myproject.egg-info
+__pycache__/
+*.pyc
+nodrops/
+log.log

@@ -2,8 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from selenium import webdriver
 
-from controller.web_connection import WebConnection
-from model.job import Job
+from controllers.web_connection import WebConnection
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -93,4 +92,4 @@ df = pd.DataFrame.from_dict({
     'link':link_list
 })
 
-df.to_csv("linkedin_jobs.csv",sep=',',index=False)
+df.to_csv("results/linkedin_jobs.csv", sep=',', index=False)
