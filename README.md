@@ -8,5 +8,7 @@
 
 4 - pip install -e .
 
+Rodar apenas o servidor: task run
+Realizar o scrap e antes: task scraprun
 - - - - - - - - - - - - - - - - - - - - - - -
 

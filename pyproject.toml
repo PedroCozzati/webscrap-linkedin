@@ -1,0 +1,3 @@
+[tool.taskipy.tasks]
+run = 'uvicorn src.app:app --reload'
+scraprun = "python src/main.py && uvicorn src.app:app --reload"
