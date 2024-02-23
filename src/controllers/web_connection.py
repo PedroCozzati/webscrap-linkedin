@@ -39,11 +39,5 @@ class WebConnection:
         
         driver.get(complete_url)
         
-        # response = requests.get(
-        #     url=complete_url,
-        #     headers=self.headers
-        #     )
-        print(driver.page_source)
-        
         return driver.page_source
         
