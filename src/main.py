@@ -23,7 +23,7 @@ pais = "Brazil"
 trabalho = "Desenvolvedor"
 distance = "40"
 
-max_pages = 0
+max_pages = 1
 
 connection = WebConnection(
     driver=driver,
@@ -51,13 +51,11 @@ job_type_list = []
 role_list = []
 sector_list = []
 
-
 def cleaning_job_info(input, output):
     job_infos_aux = str(input).split("\n")
     for info in job_infos_aux:
         if info.strip():
             output.append(info.strip())
-
 
 def get_info():
     pagina = 0
@@ -98,7 +96,7 @@ def get_info():
         job_details = requests.get(link)
         job_details_soup = BeautifulSoup(job_details.text, "html.parser")
         # Timer necessário para carregar a nova pagina a tempo da informação aparecer
-        time.sleep(2)
+        time.sleep(3)
 
         # Descrição da vaga
         if job_details_soup.select_one("div.description__text.description__text--rich"):
@@ -122,7 +120,7 @@ def get_info():
                 .strip()
             )
         else:
-            "NA"
+            job_applications="NA"
 
         # Informações gerais da vaga (nivel de experiencia, tipo de emprego, função, etc)
         if job_details_soup.find("ul", class_="description__job-criteria-list"):
@@ -132,7 +130,7 @@ def get_info():
                 .strip()
             )
         else:
-            "NA"
+            job_infos ="NA"
 
         cleaning_job_info(job_infos, cleaned_jobs_infos)
 
@@ -146,11 +144,26 @@ def get_info():
         description_list.append(job_details_description)
         application_list.append(job_applications)
 
-        experience_level_list.append(cleaned_jobs_infos[1])
-        job_type_list.append(cleaned_jobs_infos[3])
-        role_list.append(cleaned_jobs_infos[5])
-        sector_list.append(cleaned_jobs_infos[7])
+        try:
+            experience_level_list.append(cleaned_jobs_infos[1])
+        except:
+            experience_level_list.append("NA")
+            
+        try:
+            job_type_list.append(cleaned_jobs_infos[3])
+        except:
+            job_type_list.append("NA")
+            
+        try:
+            role_list.append(cleaned_jobs_infos[5])
+        except:
+            role_list.append("NA")
 
+        try:
+            sector_list.append(cleaned_jobs_infos[7])
+        except:
+            sector_list.append("NA")
+            
         cleaned_jobs_infos.clear()
 
     driver.close()
