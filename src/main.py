@@ -23,7 +23,7 @@ pais = "Brazil"
 trabalho = "Desenvolvedor"
 distance = "40"
 
-max_pages = 1
+max_pages = 99
 
 connection = WebConnection(
     driver=driver,
@@ -59,13 +59,19 @@ def cleaning_job_info(input, output):
 
 def get_info():
     pagina = 0
+    end_page = False
+    
     have_more_jobs_button = driver.find_element(
         By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
     )
 
+    
     while have_more_jobs_button and pagina <= max_pages:
+        have_more_jobs_button = driver.find_element(
+                    By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
+                )
+        
         jobs = driver.find_elements(By.CSS_SELECTOR, "div[data-row]")
-
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         pagina = pagina + 1
@@ -81,6 +87,12 @@ def get_info():
             except:
                 print("Loader automático...")
 
+        # if driver.find_element(
+        #             By.CSS_SELECTOR, "p.inline-notification__text.text-sm.leading-regular"
+        #         ).text.strip()=='Você viu todas as vagas para esta pesquisa':
+        #     end_page=True 
+        #     print("FIM")
+        
         time.sleep(2)
 
     for job in jobs:
