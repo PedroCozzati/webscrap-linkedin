@@ -16,6 +16,7 @@ def on_startup():
             if vaga is None:
                 vaga = Vaga(
                     title=row["title"],
+                    job_id=int(row['link'].split("?")[0].rsplit('-', 1)[-1]),
                     location=row["location"],
                     time_opened=row["time_opened"],
                     link=row["link"],
@@ -26,8 +27,12 @@ def on_startup():
                     sectors=row["sectors"],
                     description=row["description"],
                 )
+            job_id = row['link'].split("?")[0].rsplit('-', 1)[-1]
+            existing_vaga = session.exec(select(Vaga).where(Vaga.job_id == job_id)).first()
+            if existing_vaga is None:
                 session.add(vaga)
                 session.commit()
+           
 
 
 @app.post("/vaga/")

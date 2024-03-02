@@ -4,6 +4,7 @@ from sqlmodel import Field, SQLModel, create_engine
 
 class Vaga(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    job_id: Optional[int]= None
     title: Optional[str] = None
     location: Optional[str] = None
     time_opened: Optional[str] = None
@@ -17,7 +18,7 @@ class Vaga(SQLModel, table=True):
     description: Optional[str] = None
 
 
-sqlite_file_name = "database.db"
+sqlite_file_name = "database3.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}

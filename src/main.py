@@ -1,3 +1,4 @@
+from http.client import IncompleteRead
 import re
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -9,13 +10,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 import time
 
-option = webdriver.ChromeOptions()
-option.add_argument("--start-maximized")
-driver = webdriver.Chrome(options=option)
+# option = webdriver.ChromeOptions()
+# # option.add_argument("--start-maximized")
+# driver = webdriver.Chrome(options=option)
 
-# option = webdriver.EdgeOptions()
-# option.add_argument("--start-maximized")
-# driver = webdriver.Edge(options=option)
+option = webdriver.EdgeOptions()
+driver = webdriver.Edge(options=option)
 
 estado = "São Paulo,"
 cidade = "São Paulo,"
@@ -23,7 +23,7 @@ pais = "Brazil"
 trabalho = "Desenvolvedor"
 distance = "40"
 
-max_pages = 99
+max_pages = 98
 
 connection = WebConnection(
     driver=driver,
@@ -56,23 +56,40 @@ def cleaning_job_info(input, output):
     for info in job_infos_aux:
         if info.strip():
             output.append(info.strip())
+            
+def smooth_scroll(driver, target):
+    current_position = driver.execute_script("return window.pageYOffset;")
+    direction = 1 if target > current_position else -1
 
+    for i in range(current_position, target, -10):
+        driver.execute_script(f"window.scrollTo(0, {i});")
+        time.sleep(0.01) 
+        
 def get_info():
     pagina = 0
     end_page = False
     
-    have_more_jobs_button = driver.find_element(
-        By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
-    )
+    have_more_jobs_button = True
 
     
     while have_more_jobs_button and pagina <= max_pages:
-        have_more_jobs_button = driver.find_element(
-                    By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
-                )
-        
+       
+        time.sleep(4)
+       
         jobs = driver.find_elements(By.CSS_SELECTOR, "div[data-row]")
+        print(len(jobs))
+        
+        have_more_jobs_button = driver.find_element(
+                By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
+            )
+        
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # time.sleep(2)
+        time.sleep(2)
+        smooth_scroll(driver,100)
+        # time.sleep(3)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # time.sleep(2)
 
         pagina = pagina + 1
         print("Atualmente na página: " + str(pagina))
@@ -81,9 +98,12 @@ def get_info():
             By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
         ):
             try:
+                time.sleep(2)
                 ActionChains(driver).move_to_element(have_more_jobs_button).click(
                     have_more_jobs_button
                 ).perform()
+                time.sleep(4)
+                
             except:
                 print("Loader automático...")
 
@@ -104,11 +124,15 @@ def get_info():
         time_opened = job.find_element(By.CSS_SELECTOR, "time").text.strip()
         link = job.find_element(By.TAG_NAME, "a").get_attribute("href")
 
-        # Entrando na pagina de detalhes
-        job_details = requests.get(link)
+        try:
+            job_details = requests.get(link)
+        except IncompleteRead as e:
+            job_details = e.partial
+            
+            
         job_details_soup = BeautifulSoup(job_details.text, "html.parser")
         # Timer necessário para carregar a nova pagina a tempo da informação aparecer
-        time.sleep(3)
+        time.sleep(2)
 
         # Descrição da vaga
         if job_details_soup.select_one("div.description__text.description__text--rich"):
