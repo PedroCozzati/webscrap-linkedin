@@ -7,23 +7,25 @@ import requests
 from controllers.web_connection import WebConnection
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import undetected_chromedriver as uc
 import time
 
-# option = webdriver.ChromeOptions()
-# # option.add_argument("--start-maximized")
-# driver = webdriver.Chrome(options=option)
+option = webdriver.ChromeOptions()
+option.add_argument("--start-maximized")
+driver = webdriver.Chrome(options=option)
 
-option = webdriver.EdgeOptions()
-driver = webdriver.Edge(options=option)
+# option = webdriver.EdgeOptions()
+# driver = webdriver.Edge(options=option)
 
 estado = "São Paulo,"
 cidade = "São Paulo,"
 pais = "Brazil"
-trabalho = "Desenvolvedor"
-distance = "40"
+trabalho = "Engenharia de dados"
+distance = "60"
 
-max_pages = 98
+max_pages = 90
 
 connection = WebConnection(
     driver=driver,
@@ -57,10 +59,9 @@ def cleaning_job_info(input, output):
         if info.strip():
             output.append(info.strip())
             
-def smooth_scroll(driver, target):
+def smooth_scroll(driver):
     current_position = driver.execute_script("return window.pageYOffset;")
-    direction = 1 if target > current_position else -1
-
+    target = current_position - 900 
     for i in range(current_position, target, -10):
         driver.execute_script(f"window.scrollTo(0, {i});")
         time.sleep(0.01) 
@@ -70,61 +71,64 @@ def get_info():
     end_page = False
     
     have_more_jobs_button = True
-
+    wait = WebDriverWait(driver, 10)
     
     while have_more_jobs_button and pagina <= max_pages:
+        
        
         time.sleep(4)
        
         jobs = driver.find_elements(By.CSS_SELECTOR, "div[data-row]")
         print(len(jobs))
         
+        
+        #EVITAR RATE LIMIT DA API 
+        # if len(jobs) > 400 and len(jobs) % 400 == 0:
+        #     time.sleep(100)
+        
         have_more_jobs_button = driver.find_element(
                 By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
             )
         
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # time.sleep(2)
-        time.sleep(2)
-        smooth_scroll(driver,100)
-        # time.sleep(3)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # time.sleep(2)
-
-        pagina = pagina + 1
-        print("Atualmente na página: " + str(pagina))
-
-        if driver.find_element(
-            By.CSS_SELECTOR, "button.infinite-scroller__show-more-button"
-        ):
-            try:
-                time.sleep(2)
-                ActionChains(driver).move_to_element(have_more_jobs_button).click(
-                    have_more_jobs_button
-                ).perform()
-                time.sleep(4)
-                
-            except:
-                print("Loader automático...")
-
-        # if driver.find_element(
-        #             By.CSS_SELECTOR, "p.inline-notification__text.text-sm.leading-regular"
-        #         ).text.strip()=='Você viu todas as vagas para esta pesquisa':
-        #     end_page=True 
-        #     print("FIM")
+        smooth_scroll(driver)
         
         time.sleep(2)
 
+        print("Atualmente na página: " + str(pagina))
+
+       
+        try:
+            button_click = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.infinite-scroller__show-more-button")))
+            
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(10)
+            time.sleep(4)
+            button_click.click()
+            time.sleep(10)
+            time.sleep(4)
+        except:
+            print("Loader automático...")
+        finally:
+            pagina = pagina + 1
+
+        time.sleep(2)
+
     for job in jobs:
+        time.sleep(2)
         title = job.find_element(By.TAG_NAME, "h3").text.strip()
+        time.sleep(2)
         company = job.find_element(By.TAG_NAME, "h4").text.strip()
+        time.sleep(2)
         location = job.find_element(
             By.CSS_SELECTOR, "span.job-search-card__location"
         ).text.strip()
         time_opened = job.find_element(By.CSS_SELECTOR, "time").text.strip()
+        time.sleep(2)
         link = job.find_element(By.TAG_NAME, "a").get_attribute("href")
 
         try:
+            time.sleep(2)
             job_details = requests.get(link)
         except IncompleteRead as e:
             job_details = e.partial
@@ -132,7 +136,7 @@ def get_info():
             
         job_details_soup = BeautifulSoup(job_details.text, "html.parser")
         # Timer necessário para carregar a nova pagina a tempo da informação aparecer
-        time.sleep(2)
+        time.sleep(5)
 
         # Descrição da vaga
         if job_details_soup.select_one("div.description__text.description__text--rich"):

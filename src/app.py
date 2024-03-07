@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import FastAPI
 from src.database import create_db_and_tables, Vaga, engine
 from sqlmodel import Session, select
@@ -12,11 +13,16 @@ def on_startup():
     df = pd.read_csv("results/linkedin_jobs.csv")
     for index, row in df.iterrows():
         with Session(engine) as session:
-            vaga = session.exec(select(Vaga).where(Vaga.link == row["link"])).first()
-            if vaga is None:
+            # vaga = session.exec(select(Vaga).where(Vaga.link == row["link"])).first()
+            # if vaga is None:
+            job_id = row['link'].split("?")[0].rsplit('-', 1)[-1]
+            existing_vaga = session.exec(select(Vaga).where(Vaga.job_id == job_id)).first()
+            if existing_vaga is None:
                 vaga = Vaga(
                     title=row["title"],
                     job_id=int(row['link'].split("?")[0].rsplit('-', 1)[-1]),
+                    register_date=str(datetime.now().strftime('%Y-%m-%d')),
+                    company=row['company'],
                     location=row["location"],
                     time_opened=row["time_opened"],
                     link=row["link"],
@@ -27,9 +33,6 @@ def on_startup():
                     sectors=row["sectors"],
                     description=row["description"],
                 )
-            job_id = row['link'].split("?")[0].rsplit('-', 1)[-1]
-            existing_vaga = session.exec(select(Vaga).where(Vaga.job_id == job_id)).first()
-            if existing_vaga is None:
                 session.add(vaga)
                 session.commit()
            
