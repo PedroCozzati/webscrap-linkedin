@@ -24,7 +24,11 @@ Obs: Algumas informações que precisam ser capturadas dentro da página de deta
 Esse projeto foi utilizado em outro >> [ETL-LINKEDIN](https://github.com/PedroCozzati/pipeline-airflow-etl-linkedin)
 
 ## Tecnologias utilizadas
+
 Python
+
 Selenium
+
 Beautiful Soap
+
 
