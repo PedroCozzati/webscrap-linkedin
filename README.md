@@ -3,7 +3,7 @@
 Um webscrap para recuperar vagas do linkedin utilizando python e selenium.
 
 ## Documentação
-O Webscrap é feito na versão 'deslogada' do Linkedin, para evitar problemas com a conta pessoal. Devido a isso, o acesso a informações é menor, e o rate limit é maior. O que torna o processo um pouco mais demorado em alguns casos.
+O Webscrap é feito na versão 'deslogada' do Linkedin, para evitar problemas com a conta pessoal. Devido a isso, o acesso a informações é menor, e o rate limit é maior, o que torna o processo um pouco mais demorado em alguns casos.
 
 
 ## Como funciona:
